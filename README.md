@@ -1,82 +1,70 @@
-# LearnFlow — Next-Gen Student Dashboard
+# Learning Dashboard
 
-A high-fidelity learning dashboard built for the Frontend Intern Challenge. Dark-mode Bento Grid layout with live Supabase data, Framer Motion animations, and full responsive design.
+A student dashboard I built for a frontend intern challenge. Dark bento-grid layout, live course data from Supabase, and a bunch of Framer Motion animations. Tried to make it feel like something you'd actually want to use rather than just a cookie-cutter CRUD app.
 
-## Tech Stack
+Live: [project-o9a7g.vercel.app](https://project-o9a7g.vercel.app)
 
-| Layer | Tech |
-|---|---|
-| Framework | Next.js 16 (App Router) |
-| Database | Supabase (PostgreSQL) |
-| Styling | Tailwind CSS v4 |
-| Animations | Framer Motion |
-| Icons | Lucide React |
+---
 
-## Architecture
+## Stack
 
-### Server / Client Split
+Next.js (App Router), Supabase, Tailwind CSS v4, Framer Motion, Lucide React
 
-Data fetching happens entirely in **Server Components** (`page.tsx` → `DashboardContent`). The Supabase client is instantiated server-side via `@supabase/supabase-js`, so credentials never reach the browser. Only interactive components that need browser APIs (`useState`, `useEffect`, Framer Motion hooks) are marked `"use client"`:
+---
 
-- `Sidebar` — collapsible state, `layoutId` nav animation
-- `BentoGrid` — stagger entrance animations
-- `CourseCard` — hover spring physics, animated progress bar
-- `ActivityTile` — Framer Motion entrance per cell
-- `HeroTile` — streak dot animation
+## How I structured it
 
-### Suspense Boundary
+The biggest decision was the server/client split. Since this is a dashboard that fetches real data, I wanted the Supabase call to happen on the server — that way credentials never reach the browser and the first paint already has data. `DashboardContent` in `page.tsx` is an async server component that calls `getCourses()`, and if Supabase isn't reachable it just falls back to hardcoded demo data so the UI doesn't break.
 
-`DashboardContent` is wrapped in `<Suspense fallback={<DashboardSkeleton />}>` so skeleton loaders appear immediately while Supabase data is in flight. A dedicated `loading.tsx` also handles Next.js route-level loading state.
+Components that need browser stuff (`useState`, `useEffect`, hover animations) are marked `"use client"` — the sidebar, course cards, activity tile, hero tile. Everything else stays server-side.
 
-### Error Handling
+Wrapped `DashboardContent` in `<Suspense>` so skeleton loaders show up immediately while the data loads. Also have a `loading.tsx` for the route-level loading state and an `error.tsx` boundary for unexpected crashes.
 
-If Supabase is unreachable (missing env vars, network error), `getCourses()` throws and `DashboardContent` catches it, falling back to static demo data so the UI always renders. `error.tsx` handles unexpected runtime errors with a retry button.
+### The hydration bug that annoyed me
 
-### Animation Strategy
+The activity heatmap was causing a hydration mismatch — I was using `Math.random()` at module level to generate the activity data, which runs on the server during SSR and then again on the client, producing different values each time. Fixed it by writing a simple seeded PRNG so both sides always get the same output.
 
-All animations use `transform` and `opacity` only — never `width`, `height`, or layout-affecting properties — ensuring **zero layout shifts**. Framer Motion's spring physics (`stiffness: 300, damping: 20`) power all hover states. The sidebar's active highlight uses `layoutId` for a snapped, shared-element transition.
+### Animations
 
-## Setup
+Everything uses only `transform` and `opacity` — no `width`, `height`, or anything that causes layout shifts. Card hover uses spring physics, sidebar active state uses `layoutId` so the highlight animates between nav items instead of just appearing. The bento tiles stagger in on load rather than all appearing at once.
 
-### 1. Clone and install
+---
+
+## Running it locally
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/learning-dashboard.git
+git clone https://github.com/himanshuM19/learning-dashboard.git
 cd learning-dashboard
 npm install
 ```
 
-### 2. Supabase setup
+Copy `.env.example` → `.env.local` and add your Supabase project URL and anon key (Settings → API in your Supabase dashboard).
 
-1. Create a free project at [supabase.com](https://supabase.com)
-2. Go to **SQL Editor** and run `database/seed.sql`
-3. Copy your project URL and anon key from **Project Settings → API**
-
-### 3. Environment variables
-
-```bash
-cp .env.example .env.local
-# Fill in your Supabase URL and anon key
-```
-
-### 4. Run
+Run the SQL in `database/seed.sql` from the Supabase SQL editor to create the courses table and seed it with some data.
 
 ```bash
 npm run dev
-# Open http://localhost:3000
+# http://localhost:3000
 ```
 
-## Deploy to Vercel
+---
 
-```bash
-vercel --prod
-# Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel dashboard
-```
+## Database schema
 
-## Responsive Behaviour
+One table — `courses`:
 
-| Breakpoint | Sidebar | Grid |
-|---|---|---|
-| Desktop >1024px | Full sidebar with labels | 4-column Bento |
-| Tablet 768-1024px | Collapsed to icons only | 2-column Bento |
-| Mobile <768px | Hidden; bottom nav bar | Single column |
+- `id` uuid, primary key
+- `title` text
+- `progress` integer (0–100)
+- `icon_name` text — maps to a Lucide icon component
+- `created_at` timestamptz
+
+RLS is on with a public read policy so the anon key can query it safely.
+
+---
+
+## Responsive
+
+- Desktop: full sidebar with labels, 4-column bento grid
+- Tablet: sidebar collapses to icons only (auto, not manual)
+- Mobile: sidebar replaced by a bottom nav bar, grid goes single column

@@ -1,9 +1,5 @@
--- ============================================================
--- LearnFlow — Supabase courses table setup
--- Run this in your Supabase SQL Editor
--- ============================================================
+-- run this in your Supabase SQL editor
 
--- 1. Create the courses table
 create table if not exists public.courses (
   id          uuid primary key default gen_random_uuid(),
   title       text not null,
@@ -12,7 +8,6 @@ create table if not exists public.courses (
   created_at  timestamptz not null default now()
 );
 
--- 2. Enable Row Level Security (read-only public access)
 alter table public.courses enable row level security;
 
 create policy "Public read access"
@@ -20,7 +15,6 @@ create policy "Public read access"
   for select
   using (true);
 
--- 3. Seed data
 insert into public.courses (title, progress, icon_name) values
   ('Advanced React Patterns',       75, 'Layers'),
   ('TypeScript Deep Dive',          48, 'Code2'),

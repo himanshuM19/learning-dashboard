@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Activity } from "lucide-react";
 
-// Seeded PRNG so server and client produce identical values (no hydration mismatch)
+// Math.random() causes hydration mismatch — same seed = same output on server + client
 function seededRandom(seed: number) {
   let s = seed;
   return () => {

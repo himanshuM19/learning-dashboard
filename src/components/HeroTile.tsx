@@ -31,7 +31,7 @@ export default function HeroTile({ name = "Alex", streak = 12 }: HeroTileProps) 
           Welcome back, {name} 👋
         </h1>
         <p className="text-slate-400 text-sm mt-2">
-          You&apos;re on a roll. Keep the momentum going!
+          Ready to pick up where you left off?
         </p>
       </div>
 

@@ -14,7 +14,7 @@ async function DashboardContent() {
     courses = await getCourses();
   } catch (error) {
     console.error("Supabase fetch error:", error);
-    // Fallback to demo data if Supabase isn't connected
+    // fall back to demo data so the UI doesn't break
     courses = [
       {
         id: "1",
