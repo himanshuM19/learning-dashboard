@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -12,12 +12,7 @@ import {
   ChevronRight,
   Zap,
 } from "lucide-react";
-
-interface NavItem {
-  label: string;
-  icon: React.ReactNode;
-  href: string;
-}
+import type { NavItem } from "@/types";
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: <LayoutDashboard size={18} />, href: "#" },
@@ -30,6 +25,13 @@ const navItems: NavItem[] = [
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [active, setActive] = useState("Dashboard");
+
+  useEffect(() => {
+    const handleResize = () => setCollapsed(window.innerWidth < 1024);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <motion.nav

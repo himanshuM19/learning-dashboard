@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import type { Course } from "@/types";
 import DynamicIcon from "./DynamicIcon";
+import ProgressBar from "./ProgressBar";
 
 const cardGradients = [
   {
@@ -90,19 +91,11 @@ export default function CourseCard({ course, index }: CourseCardProps) {
           <span>Progress</span>
           <span>{course.progress}%</span>
         </div>
-        <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-          <motion.div
-            className={`h-full rounded-full bg-gradient-to-r ${theme.bar}`}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: course.progress / 100 }}
-            transition={{
-              delay: 0.3 + index * 0.1,
-              duration: 1.1,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            style={{ originX: 0 }}
-          />
-        </div>
+        <ProgressBar
+          value={course.progress}
+          color={theme.bar}
+          delay={0.3 + index * 0.1}
+        />
       </div>
     </motion.article>
   );

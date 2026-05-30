@@ -3,27 +3,28 @@
 import { motion } from "framer-motion";
 import { Activity } from "lucide-react";
 
+// Seeded PRNG so server and client produce identical values (no hydration mismatch)
+function seededRandom(seed: number) {
+  let s = seed;
+  return () => {
+    s = Math.imul(1664525, s) + 1013904223;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
 function generateActivityData() {
   const weeks = 15;
   const days = 7;
   const data: number[][] = [];
+  const rand = seededRandom(42);
 
   for (let w = 0; w < weeks; w++) {
     const week: number[] = [];
     for (let d = 0; d < days; d++) {
-      // Simulate realistic-looking activity (more recent = more active)
       const recency = w / weeks;
-      const rand = Math.random();
+      const r = rand();
       const value =
-        rand > 0.45
-          ? rand > 0.75
-            ? rand > 0.9
-              ? 4
-              : 3
-            : 2
-          : rand > 0.3
-          ? 1
-          : 0;
+        r > 0.45 ? (r > 0.75 ? (r > 0.9 ? 4 : 3) : 2) : r > 0.3 ? 1 : 0;
       week.push(Math.round(value * recency * 1.5));
     }
     data.push(week);

@@ -34,7 +34,7 @@ export function CourseSkeleton() {
 
 export function DashboardSkeleton() {
   return (
-    <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 md:p-6">
+    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 md:p-6">
       {/* Hero */}
       <SkeletonTile className="col-span-2 lg:col-span-2 min-h-[180px]" />
       {/* Activity */}

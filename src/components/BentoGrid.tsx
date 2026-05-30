@@ -38,7 +38,7 @@ export default function BentoGrid({ courses }: BentoGridProps) {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 md:p-6"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 md:p-6"
       aria-label="Dashboard tiles"
     >
       {/* Hero tile — spans 2 cols */}

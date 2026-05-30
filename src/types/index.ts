@@ -8,7 +8,7 @@ export interface Course {
 
 export interface NavItem {
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   href: string;
 }
 
